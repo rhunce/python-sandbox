@@ -20,7 +20,7 @@ output =  "       atomiCally,
 """
 import re
 
-def arrange_lyrics(lyrics, band_name):
+def arrange_lyrics_improved(lyrics, band_name):
   # Remove all non-alphanumeric characters and make lowercase
   lyrics = re.sub(r'[^a-zA-Z0-9 ]', '', lyrics).lower()
   band_name = band_name.lower()
@@ -69,13 +69,13 @@ def arrange_lyrics(lyrics, band_name):
 # EXAMPLES
 lyrics = "...I bomb atomically, socrates, philosophies and hypotheses can't define how I be dropping these mockeries..."
 band_name = "cebi"
-print(arrange_lyrics(lyrics, band_name))
+print(arrange_lyrics_improved(lyrics, band_name))
 
 print("\n")
 
 lyrics = "Sometimes under the sun"
 band_name = "tus"
-print(arrange_lyrics(lyrics, band_name))
+print(arrange_lyrics_improved(lyrics, band_name))
 
 
 
