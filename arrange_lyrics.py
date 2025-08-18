@@ -6,7 +6,7 @@ def arrange_lyrics(lyrics, band_name):
   if not lyrics or not band_name:
     return ""
   
-  # 1) Clean + lowercase
+  # 1) Clean + lowercase inputs
   # split on \n and join on " "
   lyrics = " ".join(lyrics.split("\n"))
   lyrics = re.sub(r'[^a-zA-Z0-9 ]', '', lyrics).lower()
@@ -70,20 +70,16 @@ def arrange_lyrics(lyrics, band_name):
   return "\n".join(lines)
 
 
-# EXAMPLES
-lyrics = "...I bomb atomically, socrates, philosophies and hypotheses can't define how I be dropping these mockeries..."
-band_name = "cebi"
-print(arrange_lyrics(lyrics, band_name))
+# ==========================================
+# ================ EXAMPLES ================
+# ==========================================
+lyrics_1 = "...I bomb atomically, socrates, philosophies and hypotheses can't define how I be dropping these mockeries..."
+band_name_1 = "cebi"
 
-print("\n")
+lyrics_2 = "Sometimes under the sun"
+band_name_2 = "tus"
 
-lyrics = "Sometimes under the sun"
-band_name = "tus"
-print(arrange_lyrics(lyrics, band_name))
-
-print("\n")
-
-lyrics = """
+lyrics_3 = """
 Alice was beginning to get very tired of sitting by her sister on the bank,
 and of having nothing to do: once or twice she had peeped into the book her
 sister was reading, but it had no pictures or conversations in it, “and what
@@ -94,49 +90,35 @@ made her feel very sleepy and stupid), whether the pleasure of making a daisy-ch
 would be worth the trouble of getting up and picking the daisies, when suddenly a
 White Rabbit with pink eyes ran close by her.
 """
+band_name_3 = "alice"
 
-band_name = "alice"
-print(arrange_lyrics(lyrics, band_name))
-
+print(arrange_lyrics(lyrics_1, band_name_1))
+print("\n")
+print(arrange_lyrics(lyrics_2, band_name_2))
+print("\n")
+print(arrange_lyrics(lyrics_3, band_name_3))
 print("\n")
 
-lyrics = ".....zzzzz Aaaaaaaaaaaaaaaaaaaaaaaaaaaaa xxxxxxxxxxxx Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb xxxxxxxxxxxx Ccccccccccccccccccccccccccccccccccccccccc xxxxxxxxxxxx Ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd zzzzzz......"
+# ======================================
+# ================ TIMER ===============
+# ======================================
+import timeit
 
-band_name = "abcd"
-print(arrange_lyrics(lyrics, band_name))
+N = 10000
+total = timeit.timeit(
+    stmt="arrange_lyrics(lyrics, band_name)",
+    setup="""
+from __main__ import arrange_lyrics
+lyrics = \"\"\"Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or 
+twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, 
+“and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering 
+in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure
+ of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit 
+ with pink eyes ran close by her.\"\"\"
+band_name = "alice"
+""",
+    number=N
+)
 
-
-# import timeit
-
-# N = 10000
-# total = timeit.timeit(
-#     stmt="arrange_lyrics(lyrics, band_name)",
-#     setup="""
-# from __main__ import arrange_lyrics
-# lyrics = \"\"\"Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or 
-# twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, 
-# “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering 
-# in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure
-#  of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit 
-#  with pink eyes ran close by her.\"\"\"
-# band_name = "alice"
-# """,
-#     number=N
-# )
-
-# avg_ms = (total / N) * 1000
-# print(f"Average execution time: {avg_ms:.9f} ms")
-
-
-
-
-# FOLLOW UP QUESTIONS
-# ----------  1. How do we handle the case where the band name is not in the lyrics?
-# 2. How can we improve this algorithm? What is the time and space complexity?
-# 3. Is there a better algorithm? What is the time and space complexity?
-# 4. What tests would you write for this function?
-# 5. What if there are multiple arrangements? How should we best deal with this?
-# 6. How would we capitalize the band name in the output?
-# 7. Time this function.
-# 8. This is left-side biased. How can we make it right-side biased?
-# 9 . ...
+avg_ms = (total / N) * 1000
+print(f"Average execution time: {avg_ms:.9f} ms")
