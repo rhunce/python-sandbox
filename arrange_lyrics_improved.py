@@ -1,38 +1,41 @@
 import re
-from bisect import bisect_right
 
-# O(l) time | O(l) space
+CANNOT_ASSEMBLE = "CANNOT_ASSEMBLE"
+
+# O(...?...) time | O(l\...?...)
 def arrange_lyrics_improved(lyrics, band_name):
   # Guard: empty band name
   if not lyrics or not band_name:
-    return ""
+    return CANNOT_ASSEMBLE
   
-  # 1) Clean + lowercase
-  # split on \n and join on " "
+  # 1) Clean + lowercase inputs
   lyrics = " ".join(lyrics.split("\n"))
   lyrics = re.sub(r'[^a-zA-Z0-9 ]', '', lyrics).lower()
-  
   band_name = " ".join(band_name.split("\n"))
   band_name = re.sub(r'[^a-zA-Z0-9 ]', '', band_name).lower()
 
-  # 2) Split to words
+  # 2) Split lyrics into words
   words = lyrics.split()
 
-  # Guard: band name longer than lyrics
+  # Guard: band name longer than available words
   if len(band_name) > len(words):
-    return ""
+    return CANNOT_ASSEMBLE
 
   # 3) For each letter in band_name, make a list of tuples of the index of words 
   #    where it occurs, and the first index of the letter within that word.
   layers = []
   for ch in band_name:
-      occ = first_occurrences_per_letter(words, ch)
-      if not occ:
-          return ""  # impossible
-      layers.append(occ)
+      occurrences = get_first_occurrences_of_letter_in_words(words, ch)
+      if not occurrences:
+          return CANNOT_ASSEMBLE
+      layers.append(occurrences)
 
   # 4) Find the smallest range of words that contains all the letters in band_name.
-  best_selection = min_range_strictly_increasing(layers)
+  best_selection = get_min_range_of_words_having_letters(layers)
+
+  # Guard: no solution
+  if not best_selection:
+    return CANNOT_ASSEMBLE
 
   # 5) Construct lines
   lines = []
@@ -40,15 +43,13 @@ def arrange_lyrics_improved(lyrics, band_name):
     start_index, pos_of_letter_in_word = best_selection[i-1]
     end_index, _ = best_selection[i]
     # Capitalize the letter in the word
-    # words[start_index] = words[start_index][:pos_of_letter_in_word] + words[start_index][pos_of_letter_in_word].upper() + words[start_index][pos_of_letter_in_word+1:]
     words[start_index] = capitalize_letter_in_word(words[start_index], pos_of_letter_in_word)
     line = " ".join(words[start_index:end_index])
     lines.append(line)
-
   # Construct and append last line
-  last_word_index, pos_of_letter_in_word = best_selection[-1]
-  words[last_word_index] = capitalize_letter_in_word(words[last_word_index], pos_of_letter_in_word)
-  lines.append("".join(words[last_word_index]))
+  last_word_index, pos = best_selection[-1]
+  words[last_word_index] = capitalize_letter_in_word(words[last_word_index], pos)
+  lines.append(words[last_word_index])
 
   # 6) Determine padding to align vertically
   left_buffer = 0
@@ -70,11 +71,10 @@ def arrange_lyrics_improved(lyrics, band_name):
   return "\n".join(lines)
 
 
-
 # =========================================
 # ================ HELPERS ================
 # =========================================
-def first_occurrences_per_letter(words, letter):
+def get_first_occurrences_of_letter_in_words(words, letter):
     """Return [(word_index, pos_in_word)] for the FIRST occurrence in each word."""
     out = []
     for wi, w in enumerate(words):
@@ -83,51 +83,50 @@ def first_occurrences_per_letter(words, letter):
             out.append((wi, pos))
     return out
 
-def min_range_strictly_increasing(lists):
+def get_min_range_of_words_having_letters(lists):
     """
-    lists: [ [(wi, pos), ...], [(wi, pos), ...], ... ]
-    Pick one (wi, pos) from each inner list so that wi is strictly increasing
-    across layers, and the span (last_wi - first_wi) is minimized.
-    Returns the best list of tuples, or None if impossible.
+    lists: [ [(wi, pos), ...], ... ]
+    Objective: minimize (last_wi - first_wi).
+    Tie: keep the first encountered minimum (by iteration order).
     """
     if not lists or any(not lst for lst in lists):
         return None
 
-    # Ensure each layer is sorted by word index and precompute keys for bisect
-    arrays = [sorted(lst, key=lambda t: t[0]) for lst in lists]
-    keys   = [[wi for wi, _ in arr] for arr in arrays]
-
     best = None
+    best_span = float('inf')
 
-    # Try each start candidate from the first layer
-    for start_wi, start_pos in arrays[0]:
+    for start_wi, start_pos in lists[0]:
         sel = [(start_wi, start_pos)]
         prev_wi = start_wi
         feasible = True
 
-        # For each subsequent layer, pick the first occurrence with wi > prev_wi
-        for arr, ks in zip(arrays[1:], keys[1:]):
-            i = bisect_right(ks, prev_wi)
-            if i == len(arr):
+        # For each subsequent layer, linearly find the first wi > prev_wi
+        for arr in lists[1:]:
+            j = 0
+            while j < len(arr) and arr[j][0] <= prev_wi:
+                j += 1
+            if j == len(arr):
                 feasible = False
                 break
-            wi, pos = arr[i]
+            wi, pos = arr[j]
             sel.append((wi, pos))
             prev_wi = wi
 
-        if feasible:
-            if best is None:
-                best = sel
-            else:
-                cand_span = sel[-1][0] - sel[0][0]
-                curr_span = best[-1][0] - best[0][0]
-                if cand_span < curr_span or (cand_span == curr_span and sel < best):
-                    best = sel
+        if not feasible:
+            continue
+
+        span = sel[-1][0] - sel[0][0]
+        if span < best_span:
+            best = sel
+            best_span = span
+            if best_span == len(lists) - 1:
+                return best
 
     return best
 
 def capitalize_letter_in_word(word, pos):
     return word[:pos] + word[pos].upper() + word[pos+1:]
+
 
 # ==========================================
 # ================ EXAMPLES ================
@@ -135,10 +134,7 @@ def capitalize_letter_in_word(word, pos):
 lyrics_1 = "...I bomb atomically, socrates, philosophies and hypotheses can't define how I be dropping these mockeries..."
 band_name_1 = "cebi"
 
-lyrics_2 = "Sometimes under the sun"
-band_name_2 = "tus"
-
-lyrics_3 = """
+lyrics_2 = """
 Alice was beginning to get very tired of sitting by her sister on the bank,
 and of having nothing to do: once or twice she had peeped into the book her
 sister was reading, but it had no pictures or conversations in it, “and what
@@ -149,7 +145,29 @@ made her feel very sleepy and stupid), whether the pleasure of making a daisy-ch
 would be worth the trouble of getting up and picking the daisies, when suddenly a
 White Rabbit with pink eyes ran close by her.
 """
-band_name_3 = "alice"
+band_name_2 = "alice"
+
+lyrics_3 = "a a a a a b b b b b c c c c c"
+band_name_3 = "abc"
+
+lyrics_4 = "aaaaa bbbbb x ccccc a bb c"
+band_name_4 = "abc"
+
+# Returns "CANNOT_ASSEMBLE" if band name longer than lyrics
+lyrics_5 = "aaa"
+band_name_5 = "aaaa"
+
+# Returns "CANNOT_ASSEMBLE" if band name not in lyrics
+lyrics_6 = "aaa bbb"
+band_name_6 = "aba"
+
+# Returns "CANNOT_ASSEMBLE" if band name empty
+lyrics_7 = ""
+band_name_7 = "aba"
+
+# Returns "CANNOT_ASSEMBLE" if lyrics empty
+lyrics_8 = ""
+band_name_8 = "aba"
 
 print(arrange_lyrics_improved(lyrics_1, band_name_1))
 print("\n")
@@ -157,6 +175,17 @@ print(arrange_lyrics_improved(lyrics_2, band_name_2))
 print("\n")
 print(arrange_lyrics_improved(lyrics_3, band_name_3))
 print("\n")
+print(arrange_lyrics_improved(lyrics_4, band_name_4))
+print("\n")
+print(arrange_lyrics_improved(lyrics_5, band_name_5))
+print("\n")
+print(arrange_lyrics_improved(lyrics_6, band_name_6))
+print("\n")
+print(arrange_lyrics_improved(lyrics_7, band_name_7))
+print("\n")
+print(arrange_lyrics_improved(lyrics_8, band_name_8))
+print("\n")
+
 
 # ======================================
 # ================ TIMER ===============
