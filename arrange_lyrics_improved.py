@@ -1,18 +1,17 @@
 import re
+import unicodedata
 
 CANNOT_ASSEMBLE = "CANNOT_ASSEMBLE"
 
-# O(...?...) time | O(l\...?...)
+# O(...?...) time | O(...?...)
 def arrange_lyrics_improved(lyrics, band_name):
   # Guard: empty band name
   if not lyrics or not band_name:
     return CANNOT_ASSEMBLE
   
   # 1) Clean + lowercase inputs
-  lyrics = " ".join(lyrics.split("\n"))
-  lyrics = re.sub(r'[^a-zA-Z0-9 ]', '', lyrics).lower()
-  band_name = " ".join(band_name.split("\n"))
-  band_name = re.sub(r'[^a-zA-Z0-9 ]', '', band_name).lower()
+  lyrics = clean_text(lyrics)
+  band_name = clean_text(band_name, True)
 
   # 2) Split lyrics into words
   words = lyrics.split()
@@ -74,6 +73,24 @@ def arrange_lyrics_improved(lyrics, band_name):
 # =========================================
 # ================ HELPERS ================
 # =========================================
+def clean_text(s: str, remove_spaces: bool = False) -> str:
+    """
+    Normalize, then keep only letters and digits from any language.
+    If remove_spaces=True, drop spaces (e.g. for band_name); else keep spaces (e.g. for lyrics).
+    """
+    s = s.replace("\n", " ")
+    # The following line of code, with the "NFKC" argument, makes “quirky” characters become their plain forms first, so they don’t get dropped
+    # Examples:
+    # ﬁancé ① → fiancé 1
+    # ＡＢＣ１２３ → ABC123
+    # x² + y³ → x2 + y3
+    s = unicodedata.normalize("NFKC", s)
+    if remove_spaces:
+        s = "".join(ch for ch in s if ch.isalnum())
+    else:
+        s = "".join(ch for ch in s if (ch.isalnum() or ch.isspace()))
+    return s.lower()
+
 def get_first_occurrences_of_letter_in_words(words, letter):
     """Return [(word_index, pos_in_word)] for the FIRST occurrence in each word."""
     out = []
@@ -119,8 +136,6 @@ def get_min_range_of_words_having_letters(lists):
         if span < best_span:
             best = sel
             best_span = span
-            if best_span == len(lists) - 1:
-                return best
 
     return best
 
@@ -169,6 +184,15 @@ band_name_7 = "aba"
 lyrics_8 = ""
 band_name_8 = "aba"
 
+lyrics_9 = "zócalo ola kíndër ejemplo mañana tvityv tótem hjboyu internet niño gélido"
+band_name_9 = "Zoë Eñótié"
+
+lyrics_10 = "zócalo          ola kíndër ejemplo mañana          tvityv tótem hjboyu internet niño gélido"
+band_name_10 = "Zoë       Eñótié"
+
+lyrics_11 = "ﬁancé ① ＡＢＣ１２３ x² + y³"
+band_name_11 = "i1bx3"
+
 print(arrange_lyrics_improved(lyrics_1, band_name_1))
 print("\n")
 print(arrange_lyrics_improved(lyrics_2, band_name_2))
@@ -185,23 +209,29 @@ print(arrange_lyrics_improved(lyrics_7, band_name_7))
 print("\n")
 print(arrange_lyrics_improved(lyrics_8, band_name_8))
 print("\n")
+print(arrange_lyrics_improved(lyrics_9, band_name_9))
+print("\n")
+print(arrange_lyrics_improved(lyrics_10, band_name_10))
+print("\n")
+print(arrange_lyrics_improved(lyrics_11, band_name_11))
+print("\n")
 
 
 # ======================================
 # ================ TIMER ===============
 # ======================================
-import timeit
+# import timeit
 
-N = 10000
-total = timeit.timeit(
-    stmt="arrange_lyrics_improved(lyrics, band_name)",
-    setup="""
-from __main__ import arrange_lyrics_improved
-lyrics = "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her."
-band_name = "alice"
-""",
-    number=N
-)
+# N = 10000
+# total = timeit.timeit(
+#     stmt="arrange_lyrics_improved(lyrics, band_name)",
+#     setup="""
+# from __main__ import arrange_lyrics_improved
+# lyrics = "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her."
+# band_name = "alice"
+# """,
+#     number=N
+# )
 
-avg_ms = (total / N) * 1000
-print(f"Average execution time: {avg_ms:.9f} ms")
+# avg_ms = (total / N) * 1000
+# print(f"Average execution time: {avg_ms:.9f} ms")
