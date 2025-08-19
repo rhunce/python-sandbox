@@ -73,7 +73,7 @@ def arrange_lyrics(lyrics, band_name):
 # ==========================================
 # ================ EXAMPLES ================
 # ==========================================
-lyrics_1 = "...I bomb atomically, socrates, philosophies and hypotheses can't define how I be dropping these mockeries..."
+lyrics_1 = "...I bomb atomically, socrates, ^^^philosophies and hypoth&&&ses can't define h***ow I be dropping these mockeries..."
 band_name_1 = "cebi"
 
 lyrics_2 = """
