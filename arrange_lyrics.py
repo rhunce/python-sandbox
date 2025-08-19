@@ -111,6 +111,15 @@ band_name_7 = "aba"
 lyrics_8 = ""
 band_name_8 = "aba"
 
+lyrics_9 = "zócalo ola kíndër ejemplo mañana tvityv tótem hjboyu internet niño gélido"
+band_name_9 = "Zoë Eñótié"
+
+lyrics_10 = "zócalo          ola kíndër ejemplo mañana          tvityv tótem hjboyu internet niño gélido"
+band_name_10 = "Zoë       Eñótié"
+
+lyrics_11 = "ﬁancé ① ＡＢＣ１２３ x² + y³"
+band_name_11 = "i1bx3"
+
 print(arrange_lyrics(lyrics_1, band_name_1))
 print("\n")
 print(arrange_lyrics(lyrics_2, band_name_2))
@@ -126,6 +135,12 @@ print("\n")
 print(arrange_lyrics(lyrics_7, band_name_7))
 print("\n")
 print(arrange_lyrics(lyrics_8, band_name_8))
+print("\n")
+print(arrange_lyrics(lyrics_9, band_name_9))
+print("\n")
+print(arrange_lyrics(lyrics_10, band_name_10))
+print("\n")
+print(arrange_lyrics(lyrics_11, band_name_11))
 print("\n")
 
 
