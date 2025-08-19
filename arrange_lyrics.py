@@ -76,10 +76,7 @@ def arrange_lyrics(lyrics, band_name):
 lyrics_1 = "...I bomb atomically, socrates, philosophies and hypotheses can't define how I be dropping these mockeries..."
 band_name_1 = "cebi"
 
-lyrics_2 = "Sometimes under the sun"
-band_name_2 = "tus"
-
-lyrics_3 = """
+lyrics_2 = """
 Alice was beginning to get very tired of sitting by her sister on the bank,
 and of having nothing to do: once or twice she had peeped into the book her
 sister was reading, but it had no pictures or conversations in it, “and what
@@ -90,7 +87,29 @@ made her feel very sleepy and stupid), whether the pleasure of making a daisy-ch
 would be worth the trouble of getting up and picking the daisies, when suddenly a
 White Rabbit with pink eyes ran close by her.
 """
-band_name_3 = "alice"
+band_name_2 = "alice"
+
+lyrics_3 = "a a a a a b b b b b c c c c c"
+band_name_3 = "abc"
+
+lyrics_4 = "aaaaa bbbbb x ccccc a bb c"
+band_name_4 = "abc"
+
+# Returns "CANNOT_ASSEMBLE" if band name longer than lyrics
+lyrics_5 = "aaa"
+band_name_5 = "aaaa"
+
+# Returns "CANNOT_ASSEMBLE" if band name not in lyrics
+lyrics_6 = "aaa bbb"
+band_name_6 = "aba"
+
+# Returns "CANNOT_ASSEMBLE" if band name empty
+lyrics_7 = ""
+band_name_7 = "aba"
+
+# Returns "CANNOT_ASSEMBLE" if lyrics empty
+lyrics_8 = ""
+band_name_8 = "aba"
 
 print(arrange_lyrics(lyrics_1, band_name_1))
 print("\n")
@@ -98,6 +117,17 @@ print(arrange_lyrics(lyrics_2, band_name_2))
 print("\n")
 print(arrange_lyrics(lyrics_3, band_name_3))
 print("\n")
+print(arrange_lyrics(lyrics_4, band_name_4))
+print("\n")
+print(arrange_lyrics(lyrics_5, band_name_5))
+print("\n")
+print(arrange_lyrics(lyrics_6, band_name_6))
+print("\n")
+print(arrange_lyrics(lyrics_7, band_name_7))
+print("\n")
+print(arrange_lyrics(lyrics_8, band_name_8))
+print("\n")
+
 
 # ======================================
 # ================ TIMER ===============
