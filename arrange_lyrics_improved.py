@@ -1,11 +1,9 @@
-import re
 import unicodedata
 
 CANNOT_ASSEMBLE = "CANNOT_ASSEMBLE"
 
-# O(...?...) time | O(...?...)
 def arrange_lyrics_improved(lyrics, band_name):
-  # Guard: empty band name
+  # Guard: empty input(s)
   if not lyrics or not band_name:
     return CANNOT_ASSEMBLE
   
@@ -22,6 +20,14 @@ def arrange_lyrics_improved(lyrics, band_name):
 
   # 3) For each letter in band_name, make a list of tuples of the index of words 
   #    where it occurs, and the first index of the letter within that word.
+  # E.g.
+  # band_name = "abc"
+  # words = ["xxaxx", "abxxc", "bcx"]
+  # layers = [
+  #   [(0, 2), (1, 0)], # a
+  #   [(1, 1), (2, 0)], # b
+  #   [(1, 4), (2, 1)], # c
+  # ]
   layers = []
   for ch in band_name:
       occurrences = get_first_occurrences_of_letter_in_words(words, ch)
@@ -45,7 +51,7 @@ def arrange_lyrics_improved(lyrics, band_name):
     words[start_index] = capitalize_letter_in_word(words[start_index], pos_of_letter_in_word)
     line = " ".join(words[start_index:end_index])
     lines.append(line)
-  # Construct and append last line
+  # Construct and append last word
   last_word_index, pos = best_selection[-1]
   words[last_word_index] = capitalize_letter_in_word(words[last_word_index], pos)
   lines.append(words[last_word_index])
@@ -76,7 +82,7 @@ def arrange_lyrics_improved(lyrics, band_name):
 def clean_text(s: str, remove_spaces: bool = False) -> str:
     """
     Normalize, then keep only alphanumeric characters from any language.
-    If remove_spaces=True, drop spaces (e.g. for band_name); else keep spaces (e.g. for lyrics).
+    If remove_spaces=True, drop spaces also (e.g. for band_name); else keep spaces (e.g. for lyrics).
     E.g. s = ...abc^@#$%^123... → s = abc123
     """
     s = s.replace("\n", " ")
@@ -85,6 +91,7 @@ def clean_text(s: str, remove_spaces: bool = False) -> str:
     # ﬁancé ① → fiancé 1
     # ＡＢＣ１２３ → ABC123
     # x² + y³ → x2 + y3
+    # Docs; https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize
     s = unicodedata.normalize("NFKC", s)
     if remove_spaces:
         s = "".join(ch for ch in s if ch.isalnum())
@@ -93,7 +100,7 @@ def clean_text(s: str, remove_spaces: bool = False) -> str:
     return s.lower()
 
 def get_first_occurrences_of_letter_in_words(words, letter):
-    """Return [(word_index, pos_in_word)] for the FIRST occurrence in each word."""
+    """Return [(word_index, pos_in_word)] for the FIRST occurrence of letter in each word."""
     out = []
     for wi, w in enumerate(words):
         pos = w.find(letter)
@@ -194,6 +201,9 @@ band_name_10 = "Zoë       Eñótié"
 lyrics_11 = "ﬁancé ① ＡＢＣ１２３ x² + y³"
 band_name_11 = "i1bx3"
 
+lyrics_12 = "Прекрасное объяснение. Тема сложная, конечно, но лучше никто объяснить не сможет."
+band_name_12 = "Т чл ибж"
+
 print(arrange_lyrics_improved(lyrics_1, band_name_1))
 print("\n")
 print(arrange_lyrics_improved(lyrics_2, band_name_2))
@@ -216,23 +226,25 @@ print(arrange_lyrics_improved(lyrics_10, band_name_10))
 print("\n")
 print(arrange_lyrics_improved(lyrics_11, band_name_11))
 print("\n")
+print(arrange_lyrics_improved(lyrics_12, band_name_12))
+print("\n")
 
 
 # ======================================
 # ================ TIMER ===============
 # ======================================
-# import timeit
+import timeit
 
-# N = 10000
-# total = timeit.timeit(
-#     stmt="arrange_lyrics_improved(lyrics, band_name)",
-#     setup="""
-# from __main__ import arrange_lyrics_improved
-# lyrics = "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her."
-# band_name = "alice"
-# """,
-#     number=N
-# )
+N = 10000
+total = timeit.timeit(
+    stmt="arrange_lyrics_improved(lyrics, band_name)",
+    setup="""
+from __main__ import arrange_lyrics_improved
+lyrics = "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her."
+band_name = "alice"
+""",
+    number=N
+)
 
-# avg_ms = (total / N) * 1000
-# print(f"Average execution time: {avg_ms:.9f} ms")
+avg_ms = (total / N) * 1000
+print(f"Average execution time: {avg_ms:.9f} ms")

@@ -1,8 +1,7 @@
 import re
 
-# O(l) time | O(l) space
-def arrange_lyrics(lyrics, band_name):
-  # Guard: empty band name
+def arrange_lyrics_original(lyrics, band_name):
+  # Guard: empty input(s)
   if not lyrics or not band_name:
     return ""
   
@@ -120,29 +119,33 @@ band_name_10 = "Zoë       Eñótié"
 lyrics_11 = "ﬁancé ① ＡＢＣ１２３ x² + y³"
 band_name_11 = "i1bx3"
 
-print(arrange_lyrics(lyrics_1, band_name_1))
-print("\n")
-print(arrange_lyrics(lyrics_2, band_name_2))
-print("\n")
-print(arrange_lyrics(lyrics_3, band_name_3))
-print("\n")
-print(arrange_lyrics(lyrics_4, band_name_4))
-print("\n")
-print(arrange_lyrics(lyrics_5, band_name_5))
-print("\n")
-print(arrange_lyrics(lyrics_6, band_name_6))
-print("\n")
-print(arrange_lyrics(lyrics_7, band_name_7))
-print("\n")
-print(arrange_lyrics(lyrics_8, band_name_8))
-print("\n")
-print(arrange_lyrics(lyrics_9, band_name_9))
-print("\n")
-print(arrange_lyrics(lyrics_10, band_name_10))
-print("\n")
-print(arrange_lyrics(lyrics_11, band_name_11))
-print("\n")
+lyrics_12 = "Прекрасное объяснение. Тема сложная, конечно, но лучше никто объяснить не сможет."
+band_name_12 = "Т чл ибж"
 
+print(arrange_lyrics_original(lyrics_1, band_name_1))
+print("\n")
+print(arrange_lyrics_original(lyrics_2, band_name_2))
+print("\n")
+print(arrange_lyrics_original(lyrics_3, band_name_3))
+print("\n")
+print(arrange_lyrics_original(lyrics_4, band_name_4))
+print("\n")
+print(arrange_lyrics_original(lyrics_5, band_name_5))
+print("\n")
+print(arrange_lyrics_original(lyrics_6, band_name_6))
+print("\n")
+print(arrange_lyrics_original(lyrics_7, band_name_7))
+print("\n")
+print(arrange_lyrics_original(lyrics_8, band_name_8))
+print("\n")
+print(arrange_lyrics_original(lyrics_9, band_name_9))
+print("\n")
+print(arrange_lyrics_original(lyrics_10, band_name_10))
+print("\n")
+print(arrange_lyrics_original(lyrics_11, band_name_11))
+print("\n")
+print(arrange_lyrics_original(lyrics_12, band_name_12))
+print("\n")
 
 # ======================================
 # ================ TIMER ===============
@@ -151,9 +154,9 @@ import timeit
 
 N = 10000
 total = timeit.timeit(
-    stmt="arrange_lyrics(lyrics, band_name)",
+    stmt="arrange_lyrics_original(lyrics, band_name)",
     setup="""
-from __main__ import arrange_lyrics
+from __main__ import arrange_lyrics_original
 lyrics = \"\"\"Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or 
 twice she had peeped into the book hersister was reading, but it had no pictures or conversations in it, 
 “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering 
